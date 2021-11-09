@@ -12,6 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+
 app.use("/api/libro", libro);
 app.use("/api/Cliente", cliente);
 app.use("/api/proveedor", proveedor);

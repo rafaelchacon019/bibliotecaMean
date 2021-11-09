@@ -5,7 +5,7 @@ const registerCliente = async(req, res) => {
         return res.status(400).send("Incomplete data");
 
     const existingCliente = await cliente.findOne({ email: req.body.email });
-    if (existingCliente) returnres.status(400).send("Cliente already exists");
+    if (existingCliente) return res.status(400).send("Cliente already exists");
 
     const clienteSchema = new cliente({
         name: req.body.name,
@@ -22,8 +22,37 @@ const registerCliente = async(req, res) => {
 
 const listCliente = async(req, res) => {
     const clienteSchema = await cliente.find();
-    if (!clienteSchema || clienteSchema.length === 0) return res.status(400).send("Empty clientes list");
+    if (!clienteSchema || clienteSchema.length === 0)
+        return res.status(400).send("Empty clientes list");
     return res.status(200).send({ clienteSchema });
 };
 
-export default { registerCliente, listCliente };
+const updateCliente = async(req, res) => {
+    if (!req.body.name || !req.body.email || !req.body.password)
+        return res.status(400).send("Incomplete data");
+
+    const existingCliente = await cliente.findOne({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+    });
+    if (existingCliente) return res.status(400).send("Cliente already exists");
+
+    const clienteUpdate = await cliente.findByIdAndUpdate(req.body._id, {
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+    });
+
+    return !clienteUpdate ?
+        res.status(400).send("Error edit cliente") :
+        res.status(200).send({ clienteUpdate });
+};
+
+const deleteCliente = async(req, res) => {
+    const clienteDelete = await cliente.findByIdAndDelete({ _id: req.params['_id'] });
+
+    return !clienteDelete ? res.status(400).send("Cliente not found") : res.status(200).send("Cliente deleted");
+};
+
+export default { registerCliente, listCliente, updateCliente, deleteCliente };
