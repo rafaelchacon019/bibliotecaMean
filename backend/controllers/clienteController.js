@@ -50,9 +50,13 @@ const updateCliente = async(req, res) => {
 };
 
 const deleteCliente = async(req, res) => {
-    const clienteDelete = await cliente.findByIdAndDelete({ _id: req.params['_id'] });
+    const clienteDelete = await cliente.findByIdAndDelete({
+        _id: req.params["_id"],
+    });
 
-    return !clienteDelete ? res.status(400).send("Cliente not found") : res.status(200).send("Cliente deleted");
+    return !clienteDelete ?
+        res.status(400).send("Cliente not found") :
+        res.status(200).send("Cliente deleted");
 };
 
 export default { registerCliente, listCliente, updateCliente, deleteCliente };

@@ -17,6 +17,8 @@ app.use("/api/libro", libro);
 app.use("/api/Cliente", cliente);
 app.use("/api/proveedor", proveedor);
 
-app.listen(process.env.PORT, () => console.log("Backend server running on port: " + process.env.PORT));
+app.listen(process.env.PORT, () =>
+    console.log("Backend server running on port: " + process.env.PORT)
+);
 
 db.dbconnection();

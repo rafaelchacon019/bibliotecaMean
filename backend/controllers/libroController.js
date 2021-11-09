@@ -1,7 +1,13 @@
 import libro from "../models/libros.js";
 
 const registerLibro = async(req, res) => {
-    if (!req.body.name || !req.body.author || !req.body.yearPublication || !req.body.pages || !req.body.gender || !req.body.price)
+    if (!req.body.name ||
+        !req.body.author ||
+        !req.body.yearPublication ||
+        !req.body.pages ||
+        !req.body.gender ||
+        !req.body.price
+    )
         return res.status(400).send("Incomplete data");
 
     const existingLibro = await libro.findOne({ name: req.body.name });
@@ -24,12 +30,19 @@ const registerLibro = async(req, res) => {
 
 const listLibro = async(req, res) => {
     const libroSchema = await libro.find();
-    if (!libroSchema || libroSchema.length === 0) return res.status(400).send("Empty libro list");
+    if (!libroSchema || libroSchema.length === 0)
+        return res.status(400).send("Empty libro list");
     return res.status(200).send({ libroSchema });
 };
 
 const updateLibro = async(req, res) => {
-    if (!req.body.name || !req.body.author || !req.body.yearPublication || !req.body.pages || !req.body.gender || !req.body.price)
+    if (!req.body.name ||
+        !req.body.author ||
+        !req.body.yearPublication ||
+        !req.body.pages ||
+        !req.body.gender ||
+        !req.body.price
+    )
         return res.status(400).send("Incomplete data");
 
     const existingLibro = await libro.findOne({
@@ -51,12 +64,16 @@ const updateLibro = async(req, res) => {
         price: req.body.price,
     });
 
-    return !libroUpdate ? res.status(400).send("Error edit libro") : res.status(200).send({ libroUpdate });
+    return !libroUpdate ?
+        res.status(400).send("Error edit libro") :
+        res.status(200).send({ libroUpdate });
 };
 
 const deleteLibro = async(req, res) => {
-    const libroDelete = await libro.findByIdAndDelete({ _id: req.params['_id'] });
-    return !libroDelete ? res.status(400).send("Libro not found") : res.status(200).send("Libro deleted");
+    const libroDelete = await libro.findByIdAndDelete({ _id: req.params["_id"] });
+    return !libroDelete ?
+        res.status(400).send("Libro not found") :
+        res.status(200).send("Libro deleted");
 };
 
 export default { registerLibro, listLibro, updateLibro, deleteLibro };
