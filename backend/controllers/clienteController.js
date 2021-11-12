@@ -1,4 +1,7 @@
 import cliente from "../models/clientes.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import moment from "moment";
 
 const registerCliente = async(req, res) => {
     if (!req.body.name || !req.body.email || !req.body.password)
@@ -7,10 +10,12 @@ const registerCliente = async(req, res) => {
     const existingCliente = await cliente.findOne({ email: req.body.email });
     if (existingCliente) return res.status(400).send("Cliente already exists");
 
+    const hash = await bcrypt.hash(req.body.password, 10);
+
     const clienteSchema = new cliente({
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password,
+        password: hash,
         dbstatus: true,
     });
 
@@ -55,8 +60,34 @@ const deleteCliente = async(req, res) => {
     });
 
     return !clienteDelete ?
-        res.status(400).send("Cliente not found") :
-        res.status(200).send("Cliente deleted");
+        res.status(400).send({ message: "Cliente not found" }) :
+        res.status(200).send({ message: "Cliente deleted" });
 };
 
-export default { registerCliente, listCliente, updateCliente, deleteCliente };
+const login = async(req, res) => {
+    if (!req.body.email || !req.body.password)
+        return res.status(400).send({ message: "Incomplete data" });
+
+    const clientLogin = await cliente.findOne({ email: req.body.email });
+    if (!clientLogin)
+        return res.status(400).send({ message: "Wrong email or password" });
+
+    const hash = await bcrypt.compare(req.body.password, clientLogin.password);
+    if (!hash)
+        return res.status(400).send({ message: "Wrong email or password" });
+
+    try {
+        return res.status(200).json({
+            token: jwt.sign({
+                    _id: clientLogin._id,
+                    name: clientLogin.name,
+                    iat: moment().unix(),
+                },
+                process.env.SECRET_KEY_JWT)
+        });
+    } catch (e) {
+        return res.status(400).send({ message: "Login error" });
+    }
+};
+
+export default { registerCliente, listCliente, updateCliente, deleteCliente, login };
