@@ -1,4 +1,5 @@
 import cliente from "../models/clientes.js";
+import admin from "../models/admin.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import moment from "moment";
@@ -8,7 +9,12 @@ const registerCliente = async(req, res) => {
         return res.status(400).send("Incomplete data");
 
     const existingCliente = await cliente.findOne({ email: req.body.email });
-    if (existingCliente) return res.status(400).send("Cliente already exists");
+    if (existingCliente)
+        return res.status(400).send("User already exists");
+
+    const existingAdmin = await admin.findOne({ email: req.body.email });
+    if (existingAdmin)
+        return res.status(400).send("User already exists");
 
     const hash = await bcrypt.hash(req.body.password, 10);
 
@@ -20,9 +26,20 @@ const registerCliente = async(req, res) => {
     });
 
     const result = await clienteSchema.save();
-    if (!result) return res.status(500).send("Failed to register cliente");
-
-    return res.status(200).send({ clienteSchema });
+    try {
+        return res.status(200).json({
+            token: jwt.sign({
+                    _id: result._id,
+                    name: result.name,
+                    email: result.email,
+                    iat: moment().unix(),
+                },
+                process.env.SECRET_KEY_JWT
+            ),
+        });
+    } catch (e) {
+        return res.status(400).send({ message: "Register error" });
+    }
 };
 
 const listCliente = async(req, res) => {
@@ -81,6 +98,7 @@ const login = async(req, res) => {
             token: jwt.sign({
                     _id: clientLogin._id,
                     name: clientLogin.name,
+                    email: clientLogin.email,
                     iat: moment().unix(),
                 },
                 process.env.SECRET_KEY_JWT)

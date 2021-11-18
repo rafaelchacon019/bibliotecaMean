@@ -35,6 +35,13 @@ const listLibro = async(req, res) => {
     return res.status(200).send({ libroSchema });
 };
 
+const findLibro = async(req, res) => {
+    const libroList = await libro.findById({ _id: req.params["_id"] });
+    return libroList.length === 0 ?
+        res.status(400).send({ message: "Empty libro list" }) :
+        res.status(200).send({ libroList });
+};
+
 const updateLibro = async(req, res) => {
     if (!req.body.name ||
         !req.body.author ||
@@ -76,4 +83,4 @@ const deleteLibro = async(req, res) => {
         res.status(200).send("Libro deleted");
 };
 
-export default { registerLibro, listLibro, updateLibro, deleteLibro };
+export default { registerLibro, listLibro, updateLibro, deleteLibro, findLibro };
